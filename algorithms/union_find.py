@@ -2,7 +2,6 @@
 
 import os
 
-
 class QuickFind:
     def __init__(self, data_path=None, init_flag=False, N=None):
         """Initialize QuickFind class.
@@ -45,16 +44,22 @@ class QuickFind:
 
 
 class QuickUnion:
-    def __init__(self, data_path=None, init_flag=False, N=None):
+    def __init__(self, data_path=None, init_flag=False, N=None, improvement=False):
         """Initialize QuickUnion class.
         Args:
             data (list): user-defined data
             init_flag (bool): flag to create default set [0, 1, 2, ..]
             N (int): the length of the default set
+            improvement (False, "weighting")
         """
+        self.improvement = improvement
+
         if init_flag:
             # Set id of each object to itself.
-            self.dis_set = [i for i in range(N)] 
+            self.dis_set = [i for i in range(N)]
+            if self.improvement == "weighting":
+                print("!!!!")
+                self.trees_size = [1] * N
         else:
             self.dis_set = []
             self.load_data(data_path)
@@ -64,7 +69,9 @@ class QuickUnion:
             data = f.readlines()
             # Set id of each object to itself.
             self.dis_set = [i for i in range(int(data[0]))]
-            for line_id in range(len(data))[1:]:
+            if self.improvement == "weighting":
+                self.trees_size = [1] * int(data[0])
+            for line_id in range(1, len(data)):
                 num1, num2 = data[line_id].split()
                 self.union(int(num1), int(num2))
 
@@ -85,16 +92,26 @@ class QuickUnion:
         else:
             p_root = self.root(p)
             q_root = self.root(q)
-    
-            self.dis_set[p_root] = q_root
+            
+            if not self.improvement:
+                self.dis_set[p_root] = q_root
+            elif self.trees_size[p_root] < self.trees_size[q_root]:
+                self.dis_set[p_root] = q_root
+                self.trees_size[q_root] += self.trees_size[p_root]
+            else:
+                self.dis_set[q_root] = p_root
+                self.trees_size[p_root] += self.trees_size[q_root]
 
 
 if __name__ == '__main__':
     pth = os.getcwd() + '/../data/data.txt'
     data_QF = QuickFind(data_path=pth)
     data_QU = QuickUnion(data_path=pth)
-    print(data_QF.dis_set)
-    print(data_QU.dis_set)
+    print("Quick Find:", data_QF.dis_set)
+    print("Quick Union:", data_QU.dis_set)
+    data_WQU = QuickUnion(data_path=pth, improvement="weighting")
+    print("Wighted Quick Union:", data_WQU.dis_set)
+    print("Wighted Quick Union Sizes:", data_WQU.trees_size)
 
     data_QU.union(0, 9)
     print(data_QU.dis_set)

@@ -17,6 +17,9 @@ class QuickFind:
             self.dis_set = []
             self.load_data(data_path)
 
+    def get_data(self):
+        return self.dis_set
+
     def load_data(self, path):
         with open(path, 'r') as f:
             data = f.readlines()
@@ -50,7 +53,7 @@ class QuickUnion:
             data (list): user-defined data
             init_flag (bool): flag to create default set [0, 1, 2, ..]
             N (int): the length of the default set
-            improvement (False, "weighting")
+            improvement (False, "weighting", "compressing")
         """
         self.improvement = improvement
 
@@ -58,11 +61,13 @@ class QuickUnion:
             # Set id of each object to itself.
             self.dis_set = [i for i in range(N)]
             if self.improvement == "weighting":
-                print("!!!!")
                 self.trees_size = [1] * N
         else:
             self.dis_set = []
             self.load_data(data_path)
+
+    def get_data(self):
+        return self.dis_set
 
     def load_data(self, path):
         with open(path, 'r') as f:
@@ -78,12 +83,23 @@ class QuickUnion:
     def root(self: list, i: int):
         """Chase parent pointers until reach root."""
         while i != self.dis_set[i]:
+            if self.improvement == "compressing":
+                self.dis_set[i] = self.dis_set[self.dis_set[i]]
             i = self.dis_set[i]
         return i
 
     def is_connected(self: list, p: int, q: int) -> bool:
         """Check whether p and q have the same root."""
         return self.root(p) ==  self.root(q)
+
+    def __weighted_union(self: list, p_root: int, q_root: int):
+        "Apply weighting."
+        if self.trees_size[p_root] < self.trees_size[q_root]:
+            self.dis_set[p_root] = q_root
+            self.trees_size[q_root] += self.trees_size[p_root]
+        else:
+            self.dis_set[q_root] = p_root
+            self.trees_size[p_root] += self.trees_size[q_root]
 
     def union(self: list, p: int, q: int):
         """Change root of p to root of q."""
@@ -93,29 +109,35 @@ class QuickUnion:
             p_root = self.root(p)
             q_root = self.root(q)
             
-            if not self.improvement:
-                self.dis_set[p_root] = q_root
-            elif self.trees_size[p_root] < self.trees_size[q_root]:
-                self.dis_set[p_root] = q_root
-                self.trees_size[q_root] += self.trees_size[p_root]
+            if self.improvement == "weighting":
+                self.__weighted_union(p_root, q_root)
             else:
-                self.dis_set[q_root] = p_root
-                self.trees_size[p_root] += self.trees_size[q_root]
+                self.dis_set[p_root] = q_root
 
-
+                
 if __name__ == '__main__':
     pth = os.getcwd() + '/../data/data.txt'
     data_QF = QuickFind(data_path=pth)
+    print("Quick Find:", data_QF.get_data())
     data_QU = QuickUnion(data_path=pth)
-    print("Quick Find:", data_QF.dis_set)
-    print("Quick Union:", data_QU.dis_set)
+    print("Quick Union:", data_QU.get_data())
     data_WQU = QuickUnion(data_path=pth, improvement="weighting")
-    print("Wighted Quick Union:", data_WQU.dis_set)
-    print("Wighted Quick Union Sizes:", data_WQU.trees_size)
+    print("Weighted Quick Union:", data_WQU.get_data())
+    print("Weighted Quick Union Sizes:", data_WQU.trees_size)
+    data_PCQU = QuickUnion(data_path=pth, improvement="compressing")
+    print("Path compressed Quick Union:", data_PCQU.get_data())
 
+    print("TEST")
+    print("-" * 10)
     data_QU.union(0, 9)
     print(data_QU.dis_set)
     data_QU.union(5, 2)
-    print(data_QU.dis_set)
+    print("-" * 10)
+
+    pth = os.getcwd() + '/../data/data2.txt'
+    data_QU = QuickUnion(data_path=pth)
+    print("Quick Union:", data_QU.get_data())
+    data_PCQU = QuickUnion(data_path=pth, improvement="compressing")
+    print("Path compressed Quick Union:", data_PCQU.get_data())
 
     

@@ -50,7 +50,7 @@ class QuickUnion:
     def __init__(self, data_path=None, init_flag=False, N=None, improvement=False):
         """Initialize QuickUnion class.
         Args:
-            data (list): user-defined data
+            data_path (list): user-defined data
             init_flag (bool): flag to create default set [0, 1, 2, ..]
             N (int): the length of the default set
             improvement (False, "weighting", "compressing", "all")
@@ -113,9 +113,6 @@ class QuickUnion:
                 self.__weighted_union(p_root, q_root)
             else:
                 self.dis_set[p_root] = q_root
-        print("set:", self.dis_set)
-        if self.improvement == "weighting" or self.improvement == "all":
-            print("size:", self.trees_size)
 
                 
 if __name__ == '__main__':

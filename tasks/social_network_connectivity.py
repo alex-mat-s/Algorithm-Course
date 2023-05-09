@@ -12,7 +12,7 @@ import os
 
 class SocialNet:
     def __init__(self, data_path):
-        """Initialize QuickUnion class.
+        """Initialize SocialNet class.
         Args:
             data_path (list): user-defined data
         """

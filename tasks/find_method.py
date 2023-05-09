@@ -11,7 +11,7 @@ import os
 
 class FindMax:
     def __init__(self, data_path=None):
-        """Initialize QuickUnion class.
+        """Initialize FindMax class.
         Args:
             data_path (list): user-defined data
         """

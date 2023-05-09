@@ -54,7 +54,7 @@ class FindMax:
                 self.dis_set[p_root] = q_root
     
     def find(self: list, i: int):
-        # Find root of the i element
+        """Find the largest element in the connected component containing i."""
         return(self.root(i))
 
 
